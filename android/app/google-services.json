@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "10940269184",
+    "project_id": "usms-careers",
+    "storage_bucket": "usms-careers.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:10940269184:android:497aa67c36c2d32778dc65",
+        "android_client_info": {
+          "package_name": "com.meyo.usms_hr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "10940269184-3b1fn60bqhr2rruskp7iccoin0cbmj0i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGIJ3feZamdaSAWTnnRiObm9QqTP870pQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "10940269184-3b1fn60bqhr2rruskp7iccoin0cbmj0i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:10940269184:android:e65e185c5d26841f78dc65",
+        "android_client_info": {
+          "package_name": "com.meyo.usms_mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "10940269184-3b1fn60bqhr2rruskp7iccoin0cbmj0i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGIJ3feZamdaSAWTnnRiObm9QqTP870pQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "10940269184-3b1fn60bqhr2rruskp7iccoin0cbmj0i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
