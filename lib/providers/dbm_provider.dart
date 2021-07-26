@@ -16,6 +16,8 @@ class DBM with ChangeNotifier {
   //Firebase Init
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   FirebaseStorage firestorage = FirebaseStorage.instance;
+  //Loading Indicator
+  bool isLoading = false;
   //UserData Container
   var userData;
   DateTime? birthDay;
@@ -113,19 +115,8 @@ class DBM with ChangeNotifier {
   }
 
   //Submit Mandatory Data
-  Future<void> submitMandatoryData(
-    BuildContext context,
-    GlobalKey<FormState> formKey,
-    String fullName,
-    String mobileNumber,
-    String address,
-    String nationality,
-    String religion,
-    String degreeType,
-    String collegeName,
-    String graduationYear,
-    bool isEditMode,
-  ) async {
+  Future<void> submitMandatoryData(BuildContext context, GlobalKey<FormState> formKey, String fullName, String mobileNumber, String address,
+      String nationality, String religion, String degreeType, String collegeName, String graduationYear, bool isEditMode) async {
     //get current user
     User? user = FirebaseAuth.instance.currentUser;
     final isValid = formKey.currentState!.validate();
@@ -207,6 +198,39 @@ class DBM with ChangeNotifier {
           'Operation is done '
           'successfully',
         ));
+  }
+
+  Future<void> submitJob(
+      BuildContext context, GlobalKey<FormState> formKey, String jobName, String jobPosition, String jobResponsibilities) async {
+    final isValid = formKey.currentState!.validate();
+    if (!isValid) {
+      hideNShowSnackBar(context, 'Please Complete All Required Fields.');
+      return;
+    }
+    if (isValid) {
+      formKey.currentState!.save();
+      try {
+        final DocumentReference newJob = FirebaseFirestore.instance.collection('jobs').doc();
+        final String newJobId = newJob.id;
+        await FirebaseFirestore.instance.collection('jobs').doc(newJobId).set({
+          'jobName': jobName,
+          'jobPosition': jobPosition,
+          'jobResponsibilities': jobResponsibilities,
+          'uid': newJobId,
+          'requests': [],
+        });
+        hideNShowSnackBar(context, 'Job is submitted Successfully!');
+      } catch (err) {
+        print(err);
+        hideNShowSnackBar(context, 'There was an error uploading data.');
+        return;
+      }
+    }
+  }
+
+  Future<void> deleteJob(BuildContext context, String jobId) async {
+    await FirebaseFirestore.instance.collection('jobs').doc(jobId).delete();
+    hideNShowSnackBar(context, 'Job is deleted successfully.');
   }
 
   //end of class

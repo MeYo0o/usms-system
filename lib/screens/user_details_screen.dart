@@ -8,7 +8,10 @@ class UserDetailsScreen extends StatelessWidget {
   final userData;
   UserDetailsScreen(this.userData);
 
-  Future showAlert(String hrValue, BuildContext context, DBM dbm) async {
+  Future showAlert(String hrValue, BuildContext context) async {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+    final dbm = Provider.of<DBM>(context, listen: false);
     return showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -16,22 +19,48 @@ class UserDetailsScreen extends StatelessWidget {
         title: Text(
           'Alert!',
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyText1!.copyWith(fontWeight: FontWeight.bold, fontSize: 18),
+          style: Theme.of(context).textTheme.bodyText1!.copyWith(fontWeight: FontWeight.bold, fontSize: width * 0.02),
         ),
-        content: Text(
-          'Are you sure you want to $hrValue this user?',
-          style: Theme.of(context).textTheme.bodyText2!.copyWith(fontSize: 16),
+        content: RichText(
+          text: TextSpan(
+            style: Theme.of(context).textTheme.bodyText2!.copyWith(fontSize: width * 0.01),
+            children: [
+              TextSpan(text: 'Are you sure you want to '),
+              TextSpan(
+                  text: hrValue,
+                  style: Theme.of(context).textTheme.bodyText1!.copyWith(fontSize: width * 0.012, fontWeight: FontWeight.bold)),
+              TextSpan(text: ' this user?'),
+            ],
+          ),
         ),
         actions: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: Text('Cancel')),
+              ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(fixedSize: Size(width * 0.06, height * 0.04)),
+                  child: Text(
+                    'Cancel',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyText1!
+                        .copyWith(color: Colors.white, fontWeight: FontWeight.bold, fontSize: width * 0.01),
+                  )),
               ElevatedButton(
                   onPressed: () async {
                     await dbm.updateUserData(userData['uid'], hrValue, context).then((value) => Navigator.of(ctx).pop());
                   },
-                  child: Text('Yes')),
+                  style: ElevatedButton.styleFrom(fixedSize: Size(width * 0.06, height * 0.04)),
+                  child: Text(
+                    'Yes',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyText1!
+                        .copyWith(color: Colors.white, fontWeight: FontWeight.bold, fontSize: width * 0.01),
+                  )),
             ],
           ),
         ],
@@ -43,7 +72,7 @@ class UserDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
-    final dbm = Provider.of<DBM>(context);
+
     final TextStyle body1 =
         Theme.of(context).textTheme.bodyText1!.copyWith(fontWeight: FontWeight.bold, color: Colors.white, fontSize: width * 0.01);
     final ButtonStyle evs = ElevatedButton.styleFrom(
@@ -80,23 +109,23 @@ class UserDetailsScreen extends StatelessWidget {
                           children: [
                             if (userData['verified'] == 'verified')
                               ElevatedButton(
-                                  onPressed: () => showAlert('unverify', context, dbm),
+                                  onPressed: () => showAlert('unverify', context),
                                   style: evs,
                                   child: Text('Un Verify User ', style: body1, textAlign: TextAlign.center)),
                             if (userData['verified'] != 'verified')
                               ElevatedButton(
-                                  onPressed: () => showAlert('verify', context, dbm),
+                                  onPressed: () => showAlert('verify', context),
                                   style: evs,
                                   child: Text('Verify User ', style: body1, textAlign: TextAlign.center)),
                             if (userData['verified'] == 'verified') SizedBox(height: height * 0.015),
                             if (userData['verified'] == 'verified')
                               ElevatedButton(
-                                  onPressed: () => showAlert('employee', context, dbm),
+                                  onPressed: () => showAlert('employee', context),
                                   style: evs,
                                   child: Text('Employee  ', style: body1, textAlign: TextAlign.center)),
                             SizedBox(height: height * 0.015),
                             ElevatedButton(
-                                onPressed: () => showAlert('delete', context, dbm),
+                                onPressed: () => showAlert('delete', context),
                                 style: evs,
                                 child: Text('Delete User', style: body1, textAlign: TextAlign.center)),
                           ],

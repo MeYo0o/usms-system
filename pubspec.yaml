@@ -40,6 +40,7 @@ dependencies:
   path: ^1.8.0
   #For Android/iOS
   image_cropper: ^1.4.1
+  font_awesome_flutter: ^9.1.0
   #For Web
   #crop_image: ^1.0.1
 

@@ -6,12 +6,12 @@ import 'package:usms/screens/auth_screen.dart';
 import 'package:usms/widgets/widget_exporter.dart';
 import 'package:usms/constants/constants_exporter.dart';
 
-class RightScreenUsers extends StatefulWidget {
+class UsersScreen extends StatefulWidget {
   @override
-  _RightScreenUsersState createState() => _RightScreenUsersState();
+  _UsersScreenState createState() => _UsersScreenState();
 }
 
-class _RightScreenUsersState extends State<RightScreenUsers> {
+class _UsersScreenState extends State<UsersScreen> {
   selectedUsers _selectedUsers = selectedUsers.all;
 
   void buttonStateHandler(selectedUsers newValue) {
@@ -42,7 +42,7 @@ class _RightScreenUsersState extends State<RightScreenUsers> {
                           : dbm.firestore.collection('users').where('verified', isEqualTo: 'unverified').snapshots(),
                   builder: (context, AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> usersData) {
                     if (usersData.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
+                      return Center(child: CircularProgressIndicator());
                     } else if (usersData.hasError) {
                       return noticeError;
                     } else if (!usersData.hasData) {

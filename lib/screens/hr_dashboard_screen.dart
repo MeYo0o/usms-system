@@ -26,7 +26,7 @@ class HRDashboardScreen extends StatelessWidget {
         // crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           LeftAppDrawer(),
-          if (dbm.navigator == 0) RightScreenUsers(),
+          if (dbm.navigator == 0) UsersScreen(),
           if (dbm.navigator == 1) JobsScreen(),
         ],
       ),

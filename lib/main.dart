@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -16,7 +17,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  final bool _testMode = true;
+  final bool _testMode = false;
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.brown,
           accentColor: Colors.amber,
+          // brightness: Brightness.dark,
         ),
         home: _testMode
             ? HRDataCheck()

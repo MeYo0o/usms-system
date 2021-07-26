@@ -22,6 +22,7 @@ class FormTile extends StatelessWidget {
         keyboardType: inputType,
         controller: controller,
         autocorrect: false,
+        maxLines: null,
         decoration: InputDecoration(
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(7),

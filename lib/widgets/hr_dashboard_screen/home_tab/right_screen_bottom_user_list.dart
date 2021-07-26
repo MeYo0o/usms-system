@@ -49,8 +49,6 @@ class RightScreenBottomUserList extends StatelessWidget {
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => UserDetailsScreen(singleUserData))),
                 ),
               );
-
-              return Container();
             },
           ),
         ),
