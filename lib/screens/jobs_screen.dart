@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:usms/providers/dbm_provider.dart';
 import 'package:usms/screens/auth_screen.dart';
@@ -21,12 +20,12 @@ class JobsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height;
+    // double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     final dbm = Provider.of<DBM>(context);
 
     return Expanded(
-      flex: 5,
+      flex: 6,
       child: Container(
         padding: EdgeInsets.all(width * 0.01),
         decoration: BoxDecoration(color: Color(0xffEBEBEB)),

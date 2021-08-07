@@ -19,38 +19,40 @@ class NoticeScreen extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                iconData,
-                color: iconColor,
-                size: width * 0.25,
-              ),
-              SizedBox(height: height * 0.04),
-              Text(
-                '$headText',
-                textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .headline4!
-                    .copyWith(fontWeight: FontWeight.bold, fontSize: width * 0.1),
-              ),
-              SizedBox(height: height * 0.01),
-              Text(
-                '$bodyText',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headline4!.copyWith(fontSize: width * 0.07),
-              ),
-              SizedBox(height: height * 0.02),
-              ElevatedButton(
-                child: Text('Go Back'),
-                onPressed: () => Navigator.of(context).pushReplacementNamed(AuthScreen.id),
-                style: ElevatedButton.styleFrom(
-                  textStyle: TextStyle(fontSize: width * 0.05, fontWeight: FontWeight.bold),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  iconData,
+                  color: iconColor,
+                  size: width * 0.25,
                 ),
-              ),
-            ],
+                SizedBox(height: height * 0.04),
+                Text(
+                  '$headText',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline4!
+                      .copyWith(fontWeight: FontWeight.bold, fontSize: width * 0.1),
+                ),
+                SizedBox(height: height * 0.01),
+                Text(
+                  '$bodyText',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headline4!.copyWith(fontSize: width * 0.07),
+                ),
+                SizedBox(height: height * 0.02),
+                ElevatedButton(
+                  child: Text('Go Back'),
+                  onPressed: () => Navigator.of(context).pushReplacementNamed(AuthScreen.id),
+                  style: ElevatedButton.styleFrom(
+                    textStyle: TextStyle(fontSize: width * 0.05, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

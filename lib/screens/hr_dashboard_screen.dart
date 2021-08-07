@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:usms/providers/auth_provider.dart';
 import 'package:usms/providers/dbm_provider.dart';
 import 'package:usms/screens/jobs_screen.dart';
 import 'package:usms/widgets/widget_exporter.dart';
@@ -23,7 +22,7 @@ class HRDashboardScreen extends StatelessWidget {
       ),
       body: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        // crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           LeftAppDrawer(),
           if (dbm.navigator == 0) UsersScreen(),

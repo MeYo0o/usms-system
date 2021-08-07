@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:usms/screens/main_screen.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dbm_provider.dart';
-import '../screens/auth_screen.dart';
 import '../widgets/widget_exporter.dart';
 
+// ignore: must_be_immutable
 class MandatorySignUpScreen extends StatefulWidget {
   static const String id = 'mandatory_signup_screen';
   bool isEditMode = false;

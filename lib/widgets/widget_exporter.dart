@@ -10,3 +10,4 @@ export 'hr_dashboard_screen/home_tab/users_screen.dart';
 export 'hr_dashboard_screen/home_tab/right_screen_upper_container.dart';
 export 'hr_dashboard_screen/home_tab/right_screen_bottom_user_list.dart';
 export 'user_details_screen/data_title.dart';
+export 'user_details_screen/head_text.dart';

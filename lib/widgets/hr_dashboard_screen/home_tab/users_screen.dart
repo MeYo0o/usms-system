@@ -27,7 +27,7 @@ class _UsersScreenState extends State<UsersScreen> {
     final dbm = Provider.of<DBM>(context);
 
     return Expanded(
-      flex: 5,
+      flex: 6,
       child: Container(
         padding: EdgeInsets.all(width * 0.01),
         decoration: BoxDecoration(color: Color(0xffEBEBEB)),
@@ -64,7 +64,9 @@ class _UsersScreenState extends State<UsersScreen> {
                                   onPressed: () => buttonStateHandler(selectedUsers.all),
                                   child: Text('All Users'),
                                   style: ElevatedButton.styleFrom(
-                                    primary: _selectedUsers == selectedUsers.all ? Theme.of(context).primaryColor : Colors.white,
+                                    primary: _selectedUsers == selectedUsers.all
+                                        ? Theme.of(context).primaryColor
+                                        : Colors.white,
                                     onPrimary: _selectedUsers == selectedUsers.all ? Colors.white : Colors.black,
                                   ),
                                 ),
@@ -72,7 +74,9 @@ class _UsersScreenState extends State<UsersScreen> {
                                   onPressed: () => buttonStateHandler(selectedUsers.unverified),
                                   child: Text('Unverified Users'),
                                   style: ElevatedButton.styleFrom(
-                                    primary: _selectedUsers == selectedUsers.unverified ? Theme.of(context).primaryColor : Colors.white,
+                                    primary: _selectedUsers == selectedUsers.unverified
+                                        ? Theme.of(context).primaryColor
+                                        : Colors.white,
                                     onPrimary: _selectedUsers == selectedUsers.unverified ? Colors.white : Colors.black,
                                   ),
                                 ),
@@ -80,7 +84,9 @@ class _UsersScreenState extends State<UsersScreen> {
                                   onPressed: () => buttonStateHandler(selectedUsers.verified),
                                   child: Text('Verified Users'),
                                   style: ElevatedButton.styleFrom(
-                                    primary: _selectedUsers == selectedUsers.verified ? Theme.of(context).primaryColor : Colors.white,
+                                    primary: _selectedUsers == selectedUsers.verified
+                                        ? Theme.of(context).primaryColor
+                                        : Colors.white,
                                     onPrimary: _selectedUsers == selectedUsers.verified ? Colors.white : Colors.black,
                                   ),
                                 ),

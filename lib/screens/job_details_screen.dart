@@ -29,7 +29,10 @@ class JobDetailsScreen extends StatelessWidget {
               TextSpan(text: 'Are you sure you want to '),
               TextSpan(
                   text: hrValue,
-                  style: Theme.of(context).textTheme.bodyText1!.copyWith(fontSize: width * 0.012, fontWeight: FontWeight.bold)),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyText1!
+                      .copyWith(fontSize: width * 0.012, fontWeight: FontWeight.bold)),
               TextSpan(text: ' this job?'),
             ],
           ),
@@ -78,8 +81,10 @@ class JobDetailsScreen extends StatelessWidget {
     double width = MediaQuery.of(context).size.width;
     final dbm = Provider.of<DBM>(context, listen: false);
 
-    final TextStyle body1 =
-        Theme.of(context).textTheme.bodyText1!.copyWith(fontWeight: FontWeight.bold, color: Colors.white, fontSize: width * 0.01);
+    final TextStyle body1 = Theme.of(context)
+        .textTheme
+        .bodyText1!
+        .copyWith(fontWeight: FontWeight.bold, color: Colors.white, fontSize: width * 0.01);
     final ButtonStyle evs = ElevatedButton.styleFrom(
       // padding: EdgeInsets.symmetric(horizontal: width * 0.04, vertical: height * 0.02),
       fixedSize: Size(width * 0.08, height * 0.04),
@@ -159,11 +164,12 @@ class JobDetailsScreen extends StatelessWidget {
                                 ),
                               ),
                               title: Text(singleUserData.get('fullName')),
-                              subtitle: Text(singleUserData.get('degreeType') + ' - ' + singleUserData.get('speciality')),
+                              subtitle:
+                                  Text(singleUserData.get('degreeType') + ' - ' + singleUserData.get('speciality')),
                               trailing: Icon(Icons.arrow_forward_ios),
                               contentPadding: const EdgeInsets.all(3),
-                              onTap: () =>
-                                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => UserDetailsScreen(singleUserData))),
+                              onTap: () => Navigator.of(context)
+                                  .push(MaterialPageRoute(builder: (context) => UserDetailsScreen(singleUserData))),
                             ),
                           );
                         },

@@ -23,8 +23,8 @@ class DBM with ChangeNotifier {
   DateTime? birthDay;
   File? pickedImage;
 
-  //Navigator Boolean
-  int navigator = 1;
+  //Navigator Boolean -- Make sure you set it to 0 on deploy
+  int navigator = 0;
 
   void changeNavigatorValue(int newValue) {
     navigator = newValue;
@@ -115,8 +115,18 @@ class DBM with ChangeNotifier {
   }
 
   //Submit Mandatory Data
-  Future<void> submitMandatoryData(BuildContext context, GlobalKey<FormState> formKey, String fullName, String mobileNumber, String address,
-      String nationality, String religion, String degreeType, String collegeName, String graduationYear, bool isEditMode) async {
+  Future<void> submitMandatoryData(
+      BuildContext context,
+      GlobalKey<FormState> formKey,
+      String fullName,
+      String mobileNumber,
+      String address,
+      String nationality,
+      String religion,
+      String degreeType,
+      String collegeName,
+      String graduationYear,
+      bool isEditMode) async {
     //get current user
     User? user = FirebaseAuth.instance.currentUser;
     final isValid = formKey.currentState!.validate();
@@ -200,8 +210,8 @@ class DBM with ChangeNotifier {
         ));
   }
 
-  Future<void> submitJob(
-      BuildContext context, GlobalKey<FormState> formKey, String jobName, String jobPosition, String jobResponsibilities) async {
+  Future<void> submitJob(BuildContext context, GlobalKey<FormState> formKey, String jobName, String jobPosition,
+      String jobResponsibilities) async {
     final isValid = formKey.currentState!.validate();
     if (!isValid) {
       hideNShowSnackBar(context, 'Please Complete All Required Fields.');
@@ -217,7 +227,6 @@ class DBM with ChangeNotifier {
           'jobPosition': jobPosition,
           'jobResponsibilities': jobResponsibilities,
           'uid': newJobId,
-          'requests': [],
         });
         hideNShowSnackBar(context, 'Job is submitted Successfully!');
       } catch (err) {

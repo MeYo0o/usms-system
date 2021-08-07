@@ -6,7 +6,6 @@ import 'package:usms/providers/dbm_provider.dart';
 import 'package:usms/screens/checking/load_hr_data.dart';
 import 'package:usms/screens/main_screen.dart';
 import 'package:usms/widgets/widget_exporter.dart';
-import '../auth_screen.dart';
 import '../mandatory_signup_screen.dart';
 
 class HRDataCheck extends StatelessWidget {
