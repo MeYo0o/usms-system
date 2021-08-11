@@ -10,7 +10,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_cropper/image_cropper.dart';
-import 'package:usms/screens/checking/hr_db_check.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DBM with ChangeNotifier {
   //Firebase Init
@@ -22,6 +22,21 @@ class DBM with ChangeNotifier {
   var userData;
   DateTime? birthDay;
   File? pickedImage;
+
+  //Current Login/Signup Type State --> ex : hr , interviewer , admin , owner , ...etc
+  String? userType;
+  //setter
+  Future<void> setUserType(String keyValue) async {
+    final SharedPreferences sp = await SharedPreferences.getInstance();
+    await sp.setString('userData', keyValue);
+    userType = keyValue;
+  }
+
+  //getter
+  Future<void> getUserType() async {
+    final SharedPreferences sp = await SharedPreferences.getInstance();
+    userType = sp.getString('userData');
+  }
 
   //Navigator Boolean -- Make sure you set it to 0 on deploy
   int navigator = 0;
@@ -35,7 +50,7 @@ class DBM with ChangeNotifier {
   Future<void> getUserData() async {
     //get current user
     User? user = FirebaseAuth.instance.currentUser;
-    await firestore.collection('hr_users').doc(user!.uid).get().then(
+    await firestore.collection('$userType').doc(user!.uid).get().then(
       (DocumentSnapshot snapshot) {
         userData = snapshot.data();
         //recently added but not tested
@@ -114,6 +129,7 @@ class DBM with ChangeNotifier {
     );
   }
 
+  //////////////////////////////////////////////// Common Functions //////////////////////////////////
   //Submit Mandatory Data
   Future<void> submitMandatoryData(
       BuildContext context,
@@ -125,6 +141,7 @@ class DBM with ChangeNotifier {
       String religion,
       String degreeType,
       String collegeName,
+      String speciality,
       String graduationYear,
       bool isEditMode) async {
     //get current user
@@ -162,7 +179,7 @@ class DBM with ChangeNotifier {
         //----END of Profile Image Uploading-----//
 
         //submit to firestore
-        await firestore.collection('hr_users').doc(user.uid).set({
+        await firestore.collection('$userType').doc(user.uid).set({
           'profileImage': url,
           'fullName': fullName,
           'mobileNumber': mobileNumber,
@@ -172,8 +189,11 @@ class DBM with ChangeNotifier {
           'religion': religion,
           'degreeType': degreeType,
           'collegeName': collegeName,
+          'speciality': speciality,
           'graduationYear': graduationYear,
           'uid': user.uid,
+          if (userType == 'interviewers') 'interviews': [],
+          if (userType == 'interviewers') 'employees': [],
         }).then((value) async {
           if (isEditMode) {
             getUserData();
@@ -181,7 +201,7 @@ class DBM with ChangeNotifier {
             return;
           } else if (!isEditMode) {
             //In case HR first signup , go check his/her data then navigate to the according screen
-            Navigator.of(context).pushReplacementNamed(HRDataCheck.id);
+            // Navigator.of(context).pushReplacementNamed(DatabaseCheck.id);
           }
         });
       } catch (err) {
@@ -192,6 +212,92 @@ class DBM with ChangeNotifier {
     }
   }
 
+  ///////////////////////////////////////////////  interviewers related  //////////////////////////////////////
+  List<dynamic> interList = [];
+  Future<void> getInterviewers() async {
+    await firestore.collection('interviewers').get().then((QuerySnapshot interviewers) {
+      interviewers.docs.forEach((interviewer) {
+        interList.add(interviewer.data());
+      });
+      // print(interList);
+    });
+  }
+
+  // user from it
+  Future<void> assignUserToInterviewer(BuildContext context, String interviewerId, jobData, userData) async {
+    try {
+      if (userData['appliedJob'] != jobData['uid']) {
+        hideNShowSnackBar(context, 'This user has withdrawn his apply for this job');
+        return;
+      }
+      //define the interviewer interviews
+      List iInterviews = [];
+      // get it
+      await firestore.collection('interviewers').doc(interviewerId).get().then((DocumentSnapshot snapshot) {
+        iInterviews = snapshot.get('interviews');
+      });
+      //check if the employee has been assigned before , to prevent multiple interviews to the same interviewer
+      if (iInterviews.contains(userData['uid'])) {
+        hideNShowSnackBar(context, 'This user is already assigned for that Interviewer.');
+        return;
+      }
+      // add the employee to it
+      iInterviews.add(userData['uid']);
+      // -- New
+      //define the employee interviews
+      String eInterview = '';
+      // get it
+      await firestore.collection('users').doc(userData['uid']).get().then((DocumentSnapshot snapshot) {
+        eInterview = snapshot.get('interview');
+      });
+      //check if the employee has been assigned to any other interviewer , only one interviewer is allowed
+      if (eInterview != '') {
+        hideNShowSnackBar(context, 'This User is already assigned to another Interviewer');
+        return;
+      }
+      // update db
+      await firestore.collection('interviewers').doc(interviewerId).update({
+        'interviews': iInterviews,
+      });
+
+      // -- OLD
+      // add the interviewer to it
+      // eInterviews.add(interviewerId);
+
+      // update db
+      await firestore.collection('users').doc(userData['uid']).update({
+        'interview': interviewerId,
+      });
+      hideNShowSnackBar(context, 'Operation is done successfully.');
+    } catch (err) {
+      hideNShowSnackBar(context, 'There was an error while doing the operation.');
+    }
+  }
+
+  Future<void> unAssignUserToInterviewer(BuildContext context, String interviewerId, String employeeId) async {
+    try {
+      // update db
+      List iInterviews = [];
+      //delete the userId from the interviewer Interviews
+      await firestore.collection('interviewers').doc(interviewerId).get().then((DocumentSnapshot snapshot) {
+        iInterviews = snapshot.get('interviews');
+      });
+      iInterviews.remove(employeeId);
+
+      await firestore.collection('interviewers').doc(interviewerId).update({
+        'interviews': iInterviews,
+      });
+      await firestore.collection('users').doc(employeeId).update({
+        'interview': '',
+      });
+
+      hideNShowSnackBar(context, 'Operation is done successfully.');
+    } catch (err) {
+      hideNShowSnackBar(context, 'There was an error while doing the operation.');
+    }
+  }
+
+///////////////////////////////////////////////  HR related  //////////////////////////////////////
   Future<void> updateUserData(String uid, String hrValue, BuildContext context) async {
     String? userVerification;
     if (hrValue == 'verify') {
@@ -227,6 +333,7 @@ class DBM with ChangeNotifier {
           'jobPosition': jobPosition,
           'jobResponsibilities': jobResponsibilities,
           'uid': newJobId,
+          'requests': [],
         });
         hideNShowSnackBar(context, 'Job is submitted Successfully!');
       } catch (err) {
@@ -237,7 +344,24 @@ class DBM with ChangeNotifier {
     }
   }
 
-  Future<void> deleteJob(BuildContext context, String jobId) async {
+  Future<void> deleteJob(BuildContext context, String jobId, List usersAppliedIDs, List interviewersIDs) async {
+    //make sure there is no empty strings in the interviewers or interviewees List
+    interviewersIDs.removeWhere((e) => e == '');
+    usersAppliedIDs.removeWhere((e) => e == '');
+    //reset interviewers data
+    interviewersIDs.forEach((interviewerID) async {
+      await firestore.collection('interviewers').doc(interviewerID).update({
+        'interviews': [],
+      });
+    });
+
+    //reset users data
+    usersAppliedIDs.forEach((userId) async {
+      await firestore.collection('users').doc(userId).update({
+        'appliedJob': '',
+        'interview': '',
+      });
+    });
     await FirebaseFirestore.instance.collection('jobs').doc(jobId).delete();
     hideNShowSnackBar(context, 'Job is deleted successfully.');
   }

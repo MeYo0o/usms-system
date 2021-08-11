@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:usms/providers/auth_provider.dart';
 import 'package:usms/providers/dbm_provider.dart';
-import 'package:usms/screens/main_screen.dart';
+import 'package:usms/screens/common/main_screen.dart';
 import 'package:usms/widgets/widget_exporter.dart';
 
 class LeftAppDrawer extends StatelessWidget {
@@ -46,7 +46,7 @@ class LeftAppDrawer extends StatelessWidget {
               children: [
                 TileButton(tileTitle: 'Employ Requests', tileFunc: () => dbm.changeNavigatorValue(0)),
                 TileButton(tileTitle: 'Jobs', tileFunc: () => dbm.changeNavigatorValue(1)),
-                TileButton(tileTitle: 'Careers', tileFunc: () {}),
+                TileButton(tileTitle: 'Employees', tileFunc: () {}),
                 TileButton(tileTitle: 'Attendance', tileFunc: () {}),
                 TileButton(tileTitle: 'Employees', tileFunc: () {}),
               ],

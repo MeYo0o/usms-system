@@ -3,7 +3,7 @@ export 'main_screen_widgets/grid_item.dart';
 export 'mandatory_signup_screen/birthday_tile.dart';
 export 'mandatory_signup_screen/form_tile.dart';
 export 'mandatory_signup_screen/profile_image.dart';
-export 'common_widgets/notice_screen.dart';
+export 'common_widgets/notice_data.dart';
 export 'hr_dashboard_screen/tile_button.dart';
 export 'hr_dashboard_screen/left_appdrawer.dart';
 export 'hr_dashboard_screen/home_tab/users_screen.dart';

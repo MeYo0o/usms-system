@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:usms/screens/user_details_screen.dart';
+import 'package:usms/screens/hr/user_details_screen.dart';
 
 class RightScreenBottomUserList extends StatelessWidget {
   final usersData;
@@ -46,7 +46,8 @@ class RightScreenBottomUserList extends StatelessWidget {
                   subtitle: Text(singleUserData['degreeType'] + ' - ' + singleUserData['speciality']),
                   trailing: Icon(Icons.arrow_forward_ios),
                   contentPadding: const EdgeInsets.all(3),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => UserDetailsScreen(singleUserData))),
+                  onTap: () => Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (context) => UserDetailsScreen(singleUserData, isJob: false))),
                 ),
               );
             },

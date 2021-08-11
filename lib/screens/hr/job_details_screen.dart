@@ -2,11 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:usms/providers/dbm_provider.dart';
-import 'package:usms/screens/user_details_screen.dart';
+import 'package:usms/screens/hr/user_details_screen.dart';
 import 'package:usms/widgets/widget_exporter.dart';
 
 class JobDetailsScreen extends StatelessWidget {
   final jobData;
+  List usersAppliedIDs = [];
+  List interviewersIDs = [];
   JobDetailsScreen(this.jobData);
 
   Future showAlert(String hrValue, BuildContext context) async {
@@ -23,6 +25,7 @@ class JobDetailsScreen extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyText1!.copyWith(fontWeight: FontWeight.bold, fontSize: width * 0.02),
         ),
         content: RichText(
+          textAlign: TextAlign.center,
           text: TextSpan(
             style: Theme.of(context).textTheme.bodyText2!.copyWith(fontSize: width * 0.01),
             children: [
@@ -33,7 +36,13 @@ class JobDetailsScreen extends StatelessWidget {
                       .textTheme
                       .bodyText1!
                       .copyWith(fontSize: width * 0.012, fontWeight: FontWeight.bold)),
-              TextSpan(text: ' this job?'),
+              TextSpan(text: ' this job?\n'),
+              TextSpan(
+                  text: 'This Action Will Reset The Interview Process for Both interviewers & interviewees',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyText1!
+                      .copyWith(fontSize: width * 0.012, fontWeight: FontWeight.bold)),
             ],
           ),
         ),
@@ -54,7 +63,7 @@ class JobDetailsScreen extends StatelessWidget {
                   )),
               ElevatedButton(
                   onPressed: () async {
-                    await dbm.deleteJob(context, jobData['uid']).then((_) {
+                    await dbm.deleteJob(context, jobData['uid'], usersAppliedIDs, interviewersIDs).then((_) {
                       Navigator.of(ctx).pop();
                       Navigator.of(ctx).pop();
                     });
@@ -148,8 +157,20 @@ class JobDetailsScreen extends StatelessWidget {
                           if (userData.hasError) {
                             return noticeError;
                           }
+
+                          //to calculate all users applied for this job
+                          //store it in temp list variable so in case the HR wanna delete the job
+                          //we can delete the job from the users appliedJob as well
+                          usersAppliedIDs.add(userData.data!.get('uid'));
+                          interviewersIDs.add(userData.data!.get('interview'));
+
+                          // print('users applied ids : $usersAppliedIDs');
+                          // print('interviewers ids : $interviewersIDs');
+
+                          //to store each user data directly to this variable
                           final singleUserData = userData.data!;
                           return Container(
+                            padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(15),
                               color: Theme.of(context).accentColor.withOpacity(0.5),
@@ -166,10 +187,14 @@ class JobDetailsScreen extends StatelessWidget {
                               title: Text(singleUserData.get('fullName')),
                               subtitle:
                                   Text(singleUserData.get('degreeType') + ' - ' + singleUserData.get('speciality')),
-                              trailing: Icon(Icons.arrow_forward_ios),
+                              trailing: singleUserData.get('interview') != ''
+                                  ? Text('Interview In Process',
+                                      style: Theme.of(context).textTheme.bodyText1!.copyWith(color: Colors.red))
+                                  : Icon(Icons.arrow_forward_ios),
                               contentPadding: const EdgeInsets.all(3),
-                              onTap: () => Navigator.of(context)
-                                  .push(MaterialPageRoute(builder: (context) => UserDetailsScreen(singleUserData))),
+                              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) =>
+                                      UserDetailsScreen(singleUserData, jobData: jobData, isJob: true))),
                             ),
                           );
                         },

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:usms/providers/dbm_provider.dart';
-import 'package:usms/screens/jobs_screen.dart';
+import './jobs_screen.dart';
 import 'package:usms/widgets/widget_exporter.dart';
 
 class HRDashboardScreen extends StatelessWidget {

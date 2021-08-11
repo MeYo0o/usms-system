@@ -1,21 +1,68 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:usms/widgets/db_check_screen/notice_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:usms/providers/auth_provider.dart';
 
-final Widget noticeError = NoticeScreen(
-  headText: 'An Error Occurred!',
-  bodyText: 'Try Again Later',
-  iconData: Icons.error_outline,
-  iconColor: Colors.red,
-);
-final Widget noticeHRNoData = NoticeScreen(
-  headText: 'HR Profile Data Not Found!',
-  bodyText: 'Please Complete your registration data using the mobile version then come back here',
-  iconData: Icons.error_outline,
-  iconColor: Colors.red,
-);
-final Widget noticeHRDataCompleted = NoticeScreen(
-  headText: 'HR Profile Data Successfully Submitted!',
-  bodyText: 'You are done here , please go back to your web app and proceed',
-  iconData: Icons.check_circle_outline,
-  iconColor: Colors.green,
-);
+class NoticeScreen extends StatelessWidget {
+  final IconData? iconData;
+  final Color? iconColor;
+  final String? headText, bodyText;
+  NoticeScreen({
+    @required this.headText,
+    @required this.bodyText,
+    @required this.iconData,
+    @required this.iconColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+    final auth = Provider.of<Auth>(context, listen: false);
+    return SafeArea(
+      child: Scaffold(
+        body: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  iconData,
+                  color: iconColor,
+                  size: kIsWeb ? width * 0.1 : width * 0.25,
+                ),
+                SizedBox(height: height * 0.04),
+                Text(
+                  '$headText',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline4!
+                      .copyWith(fontWeight: FontWeight.bold, fontSize: kIsWeb ? width * 0.03 : width * 0.1),
+                ),
+                SizedBox(height: height * 0.01),
+                Text(
+                  '$bodyText',
+                  textAlign: TextAlign.center,
+                  style:
+                      Theme.of(context).textTheme.headline4!.copyWith(fontSize: kIsWeb ? width * 0.02 : width * 0.07),
+                ),
+                SizedBox(height: height * 0.02),
+                ElevatedButton(
+                  child: Text('Go Back'),
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                    await auth.emailSignOut();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    textStyle: TextStyle(fontSize: kIsWeb ? width * 0.015 : width * 0.05, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

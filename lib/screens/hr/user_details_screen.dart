@@ -7,78 +7,15 @@ import 'package:usms/widgets/widget_exporter.dart';
 
 class UserDetailsScreen extends StatelessWidget {
   final userData;
-  UserDetailsScreen(this.userData);
-
-  Future showAlert(String hrValue, BuildContext context) async {
-    double height = MediaQuery.of(context).size.height;
-    double width = MediaQuery.of(context).size.width;
-    final dbm = Provider.of<DBM>(context, listen: false);
-    return showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        contentPadding: const EdgeInsets.all(20),
-        title: Text(
-          'Alert!',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyText1!.copyWith(fontWeight: FontWeight.bold, fontSize: width * 0.02),
-        ),
-        content: RichText(
-          text: TextSpan(
-            style: Theme.of(context).textTheme.bodyText2!.copyWith(fontSize: width * 0.01),
-            children: [
-              TextSpan(text: 'Are you sure you want to '),
-              TextSpan(
-                  text: hrValue,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyText1!
-                      .copyWith(fontSize: width * 0.012, fontWeight: FontWeight.bold)),
-              TextSpan(text: ' this user?'),
-            ],
-          ),
-        ),
-        actions: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  style: ElevatedButton.styleFrom(fixedSize: Size(width * 0.06, height * 0.04)),
-                  child: Text(
-                    'Cancel',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1!
-                        .copyWith(color: Colors.white, fontWeight: FontWeight.bold, fontSize: width * 0.01),
-                  )),
-              ElevatedButton(
-                  onPressed: () async {
-                    await dbm
-                        .updateUserData(userData['uid'], hrValue, context)
-                        .then((value) => Navigator.of(ctx).pop());
-                  },
-                  style: ElevatedButton.styleFrom(fixedSize: Size(width * 0.06, height * 0.04)),
-                  child: Text(
-                    'Yes',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1!
-                        .copyWith(color: Colors.white, fontWeight: FontWeight.bold, fontSize: width * 0.01),
-                  )),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  final jobData;
+  bool? isJob = false;
+  UserDetailsScreen(this.userData, {this.isJob, this.jobData});
 
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
-
+    final dbm = Provider.of<DBM>(context);
     final TextStyle body1 = Theme.of(context)
         .textTheme
         .bodyText1!
@@ -119,18 +56,27 @@ class UserDetailsScreen extends StatelessWidget {
                               ElevatedButton(
                                   onPressed: () => showAlert('unverify', context),
                                   style: evs,
-                                  child: Text('Un Verify User ', style: body1, textAlign: TextAlign.center)),
+                                  child: Text('Don\'t Verify User ', style: body1, textAlign: TextAlign.center)),
                             if (userData['verified'] != 'verified')
                               ElevatedButton(
                                   onPressed: () => showAlert('verify', context),
                                   style: evs,
                                   child: Text('Verify User ', style: body1, textAlign: TextAlign.center)),
-                            // if (userData['verified'] == 'verified') SizedBox(height: height * 0.015),
-                            // if (userData['verified'] == 'verified')
-                            //   ElevatedButton(
-                            //       onPressed: () => showAlert('employee', context),
-                            //       style: evs,
-                            //       child: Text('Employee  ', style: body1, textAlign: TextAlign.center)),
+                            if (isJob == true) SizedBox(height: height * 0.015),
+                            if (isJob == true && userData['interview'] == '')
+                              ElevatedButton(
+                                  onPressed: () => assignToInterviewer(context),
+                                  style: evs,
+                                  child: Text('Interview User', style: body1, textAlign: TextAlign.center)),
+                            if (isJob == true && userData['interview'] != '')
+                              ElevatedButton(
+                                  onPressed: () async {
+                                    await dbm.unAssignUserToInterviewer(
+                                        context, (userData['interview']).toString(), userData['uid']);
+                                    Navigator.of(context).pop();
+                                  },
+                                  style: evs,
+                                  child: Text('Don\'t Interview', style: body1, textAlign: TextAlign.center)),
                             SizedBox(height: height * 0.015),
                             ElevatedButton(
                                 onPressed: () => showAlert('delete', context),
@@ -163,7 +109,7 @@ class UserDetailsScreen extends StatelessWidget {
                       DataTitle('Graduation Year', userData['graduationYear']),
                       DataTitle('Speciality', userData['speciality']),
                       DataTitle('Nationality', userData['nationality']),
-                      if (!userData['appliedJobs'].isEmpty)
+                      if (userData['appliedJob'] != '')
                         Column(
                           children: [
                             HeadTitle('Job Related Data'),
@@ -280,5 +226,168 @@ class UserDetailsScreen extends StatelessWidget {
           ],
         ),
       );
+  }
+
+  //Functions
+  Future showAlert(String hrValue, BuildContext context) async {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+    final dbm = Provider.of<DBM>(context, listen: false);
+    return showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        contentPadding: const EdgeInsets.all(20),
+        title: Text(
+          'Alert!',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyText1!.copyWith(fontWeight: FontWeight.bold, fontSize: width * 0.02),
+        ),
+        content: RichText(
+          text: TextSpan(
+            style: Theme.of(context).textTheme.bodyText2!.copyWith(fontSize: width * 0.01),
+            children: [
+              TextSpan(text: 'Are you sure you want to '),
+              TextSpan(
+                  text: hrValue,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyText1!
+                      .copyWith(fontSize: width * 0.012, fontWeight: FontWeight.bold)),
+              TextSpan(text: ' this user?'),
+            ],
+          ),
+        ),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(fixedSize: Size(width * 0.06, height * 0.04)),
+                  child: Text(
+                    'Cancel',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyText1!
+                        .copyWith(color: Colors.white, fontWeight: FontWeight.bold, fontSize: width * 0.01),
+                  )),
+              ElevatedButton(
+                  onPressed: () async {
+                    await dbm
+                        .updateUserData(userData['uid'], hrValue, context)
+                        .then((value) => Navigator.of(ctx).pop());
+                  },
+                  style: ElevatedButton.styleFrom(fixedSize: Size(width * 0.06, height * 0.04)),
+                  child: Text(
+                    'Yes',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyText1!
+                        .copyWith(color: Colors.white, fontWeight: FontWeight.bold, fontSize: width * 0.01),
+                  )),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future assignToInterviewer(BuildContext context) async {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+    String? interviewerId;
+    final dbm = Provider.of<DBM>(context, listen: false);
+    return showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          contentPadding: const EdgeInsets.all(20),
+          title: Text(
+            'Assign To Interviewer',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyText1!.copyWith(fontWeight: FontWeight.bold, fontSize: width * 0.02),
+          ),
+          content: DropdownButtonHideUnderline(
+            child: Container(
+              // height: height * 0.3,
+              // width: width * 0.5,
+              margin: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).primaryColor),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: DropdownButton(
+                hint: Text('Assign to Interviewer'),
+                isExpanded: true,
+                itemHeight: height * 0.1,
+                items: dbm.interList
+                    .map((e) => DropdownMenuItem(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(e['fullName']),
+                              Text(e['degreeType'] + ' : ' + e['speciality']),
+                              Divider(color: Theme.of(context).accentColor, thickness: 2),
+                            ],
+                          ),
+                          value: e['uid'],
+                        ))
+                    .toList(),
+                value: interviewerId,
+                onChanged: (newValue) {
+                  setState(() {
+                    interviewerId = newValue as String;
+                  });
+                  // print(interviewerName);
+                },
+              ),
+            ),
+          ),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: ElevatedButton.styleFrom(fixedSize: Size(width * 0.06, height * 0.04)),
+                    child: Text(
+                      'Cancel',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyText1!
+                          .copyWith(color: Colors.white, fontWeight: FontWeight.bold, fontSize: width * 0.01),
+                    )),
+                ElevatedButton(
+                    onPressed: () async {
+                      // print('interviewer : $interviewerId');
+                      // print('interviewee : ${userData['uid']}');
+                      if (interviewerId == null) {
+                        Navigator.of(ctx).pop();
+                        dbm.hideNShowSnackBar(context, 'Please Assign an Interviewer to that user!');
+                        return;
+                      }
+                      await dbm.assignUserToInterviewer(context, interviewerId!, jobData, userData);
+                      Navigator.of(ctx).pop();
+                      Navigator.of(ctx).pop();
+                    },
+                    style: ElevatedButton.styleFrom(fixedSize: Size(width * 0.06, height * 0.04)),
+                    child: Text(
+                      'Assign',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyText1!
+                          .copyWith(color: Colors.white, fontWeight: FontWeight.bold, fontSize: width * 0.01),
+                    )),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

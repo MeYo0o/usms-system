@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:usms/providers/dbm_provider.dart';
-import 'package:usms/screens/auth_screen.dart';
+import 'package:usms/screens/common/auth_screen.dart';
 import 'package:usms/widgets/widget_exporter.dart';
 import 'package:usms/constants/constants_exporter.dart';
 

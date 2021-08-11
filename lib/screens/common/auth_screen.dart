@@ -2,10 +2,10 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
-import '../providers/dbm_provider.dart';
-import '../widgets/widget_exporter.dart';
-import 'package:usms/screens/checking/hr_db_check.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/dbm_provider.dart';
+import '../../widgets/widget_exporter.dart';
+import './checking/db_check.dart';
 
 class AuthScreen extends StatefulWidget {
   static const String id = 'auth_screen';
@@ -18,6 +18,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isSignup = false;
   bool _isLoading = false;
+
   final bool _showPassword = true;
   final TextEditingController _emailCont = TextEditingController();
   final TextEditingController _passwordCont = TextEditingController();
@@ -29,7 +30,7 @@ class _AuthScreenState extends State<AuthScreen> {
     });
   }
 
-  void _submitData(Auth auth, DBM dbm) async {
+  void _submitData(Auth auth, DBM dbm, String userType) async {
     FocusScope.of(context).unfocus();
     //to enable loading
     _changeIsLoadingState();
@@ -43,16 +44,20 @@ class _AuthScreenState extends State<AuthScreen> {
       try {
         if (_isSignup) {
           await auth.emailSignUp(_emailCont.text.trim(), _passwordCont.text);
+          //save current userType as it's successfully authenticated
+          await dbm.setUserType(userType);
           //to disable loading
           _changeIsLoadingState();
           //Move to HR Data Check for whether the result should be MandatoryDataScreen or HR Profile
-          Navigator.of(context).pushReplacementNamed(HRDataCheck.id);
+          Navigator.of(context).pushReplacementNamed(DatabaseCheck.id);
         } else {
           await auth.emailSignIn(_emailCont.text.trim(), _passwordCont.text);
+          //save current userType as it's successfully authenticated
+          await dbm.setUserType(userType);
           //to disable loading
           _changeIsLoadingState();
           //Move to HR Data Check for whether the result should be MandatoryDataScreen or HR Profile
-          Navigator.of(context).pushReplacementNamed(HRDataCheck.id);
+          Navigator.of(context).pushReplacementNamed(DatabaseCheck.id);
         }
       } catch (err) {
         //to disable loading
@@ -76,7 +81,14 @@ class _AuthScreenState extends State<AuthScreen> {
     final dbm = Provider.of<DBM>(context, listen: false);
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
+    final userType = ModalRoute.of(context)!.settings.arguments as String;
     return Scaffold(
+      appBar: kIsWeb
+          ? null
+          : AppBar(
+              title: Text('Authentication Screen'),
+              centerTitle: true,
+            ),
       body: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -87,7 +99,7 @@ class _AuthScreenState extends State<AuthScreen> {
               Image.asset(
                 'assets/images/logo-nobg.png',
                 fit: BoxFit.cover,
-                height: height * 0.3,
+                height: kIsWeb ? height * 0.3 : height * 0.2,
               ),
               Container(
                 padding: const EdgeInsets.all(20),
@@ -131,12 +143,12 @@ class _AuthScreenState extends State<AuthScreen> {
                 child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 10),
                   child: Text(
-                    _isSignup ? 'Already have an account? .. Click Here to Sign In' : 'Don\'t have an account? .. Click Here to Sign Up',
+                    _isSignup
+                        ? 'Already have an account? .. Click Here to Sign In'
+                        : 'Don\'t have an account? .. Click Here to Sign Up',
                     textAlign: TextAlign.center,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1!
-                        .copyWith(color: Theme.of(context).accentColor, fontSize: kIsWeb ? width * 0.012 : width * 0.035),
+                    style: Theme.of(context).textTheme.bodyText1!.copyWith(
+                        color: Theme.of(context).accentColor, fontSize: kIsWeb ? width * 0.012 : width * 0.035),
                   ),
                 ),
               ),
@@ -157,7 +169,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 fontSize: kIsWeb ? width * 0.01 : width * 0.05),
                           ),
                         ),
-                  onPressed: () => _submitData(auth, dbm),
+                  onPressed: () => _submitData(auth, dbm, userType),
                 ),
               ),
             ],

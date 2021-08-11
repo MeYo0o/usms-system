@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:usms/providers/dbm_provider.dart';
-import 'package:usms/screens/auth_screen.dart';
+import 'package:usms/screens/common/auth_screen.dart';
 import 'package:usms/widgets/jobs_screen/jobs_bottom_screen_list.dart';
 import 'package:usms/widgets/jobs_screen/jobs_right_upper_container.dart';
 import 'package:usms/widgets/widget_exporter.dart';
@@ -34,7 +34,7 @@ class JobsScreen extends StatelessWidget {
             Expanded(
               child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                   stream: dbm.firestore.collection('jobs').snapshots(),
-                  builder: (context, AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> jobsData) {
+                  builder: (context, AsyncSnapshot<QuerySnapshot> jobsData) {
                     if (jobsData.connectionState == ConnectionState.waiting) {
                       return Center(child: CircularProgressIndicator());
                     } else if (jobsData.hasError) {

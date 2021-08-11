@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:usms/screens/main_screen.dart';
-import '../../providers/auth_provider.dart';
-import '../../providers/dbm_provider.dart';
-import '../widgets/widget_exporter.dart';
+import 'package:usms/screens/common/main_screen.dart';
+import '../../../providers/auth_provider.dart';
+import '../../../providers/dbm_provider.dart';
+import '../../widgets/widget_exporter.dart';
 
 // ignore: must_be_immutable
 class MandatorySignUpScreen extends StatefulWidget {
@@ -23,6 +23,7 @@ class _MandatorySignUpScreenState extends State<MandatorySignUpScreen> {
   final TextEditingController _religionCont = TextEditingController();
   final TextEditingController _degreeTypeCont = TextEditingController();
   final TextEditingController _collegeNameCont = TextEditingController();
+  final TextEditingController _specialityCont = TextEditingController();
   final TextEditingController _graduationYearCont = TextEditingController();
 
   bool _isLoading = false;
@@ -65,6 +66,7 @@ class _MandatorySignUpScreenState extends State<MandatorySignUpScreen> {
     _degreeTypeCont.dispose();
     _collegeNameCont.dispose();
     _graduationYearCont.dispose();
+    _specialityCont.dispose();
     super.dispose();
   }
 
@@ -101,8 +103,11 @@ class _MandatorySignUpScreenState extends State<MandatorySignUpScreen> {
                     FormTile(fieldName: 'Address', controller: _addressCont),
                     FormTile(fieldName: 'Nationality', controller: _nationalityCont),
                     FormTile(fieldName: 'Religion', controller: _religionCont),
-                    FormTile(fieldName: 'Degree Type (ex: Bachelor Degree)', controller: _degreeTypeCont),
-                    FormTile(fieldName: 'College Name', controller: _collegeNameCont),
+                    FormTile(fieldName: 'College Name (ex: Cairo University, ...etc)', controller: _collegeNameCont),
+                    FormTile(
+                        fieldName: 'Degree Type (ex: Accounting, Art, Engineering, ...etc)',
+                        controller: _degreeTypeCont),
+                    FormTile(fieldName: 'Speciality', controller: _specialityCont),
                     FormTile(
                         fieldName: 'Graduation Year',
                         controller: _graduationYearCont,
@@ -130,21 +135,24 @@ class _MandatorySignUpScreenState extends State<MandatorySignUpScreen> {
                         // print(_diplomaCont.text);
 
                         //verify & submit data
-                        await dbm
-                            .submitMandatoryData(
-                              context,
-                              _formKey,
-                              _nameCont.text,
-                              _mobileCont.text,
-                              _addressCont.text,
-                              _nationalityCont.text,
-                              _religionCont.text,
-                              _degreeTypeCont.text,
-                              _collegeNameCont.text,
-                              _graduationYearCont.text,
-                              widget.isEditMode,
-                            ) //disable loading
-                            .then((_) => _changeIsLoadingState);
+                        try {
+                          await dbm.submitMandatoryData(
+                            context,
+                            _formKey,
+                            _nameCont.text,
+                            _mobileCont.text,
+                            _addressCont.text,
+                            _nationalityCont.text,
+                            _religionCont.text,
+                            _degreeTypeCont.text,
+                            _collegeNameCont.text,
+                            _specialityCont.text,
+                            _graduationYearCont.text,
+                            widget.isEditMode,
+                          );
+                        } finally {
+                          _changeIsLoadingState();
+                        }
                       },
                       child: Text('Submit Your Data'),
                     ),

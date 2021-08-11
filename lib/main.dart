@@ -2,12 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'package:usms/screens/hr/hr_dashboard_screen.dart';
 import 'package:usms/widgets/widget_exporter.dart';
 import '../providers/auth_provider.dart';
 import '../providers/dbm_provider.dart';
-import 'screens/auth_screen.dart';
-import 'screens/checking/hr_db_check.dart';
-import 'screens/main_screen.dart';
+import 'screens/common/auth_screen.dart';
+import 'screens/common/checking/db_check.dart';
+import 'screens/common/main_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
           // brightness: Brightness.dark,
         ),
         home: _testMode
-            ? HRDataCheck()
+            ? DatabaseCheck()
             : StreamBuilder(
                 stream: FirebaseAuth.instance.authStateChanges(),
                 builder: (context, snapshot) {
@@ -44,7 +45,7 @@ class MyApp extends StatelessWidget {
                   } else if (!snapshot.hasData) {
                     return MainScreen();
                   } else if (snapshot.hasData) {
-                    return HRDataCheck();
+                    return DatabaseCheck();
                   }
                   return MainScreen();
                 },
@@ -52,7 +53,7 @@ class MyApp extends StatelessWidget {
         routes: {
           MainScreen.id: (context) => MainScreen(),
           AuthScreen.id: (context) => AuthScreen(),
-          HRDataCheck.id: (context) => HRDataCheck(),
+          DatabaseCheck.id: (context) => DatabaseCheck(),
         },
       ),
     );

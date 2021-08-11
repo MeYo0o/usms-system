@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
 class GridItem extends StatelessWidget {
   final Color? color;
   final String? title, imageTitle;
@@ -28,7 +27,8 @@ class GridItem extends StatelessWidget {
         child: Card(
           margin: const EdgeInsets.all(10),
           elevation: 5,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: Stack(
             alignment: Alignment.center,
             fit: StackFit.expand,

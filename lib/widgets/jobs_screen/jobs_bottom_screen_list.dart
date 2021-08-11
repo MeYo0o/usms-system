@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:usms/screens/job_details_screen.dart';
+import 'package:usms/screens/hr/job_details_screen.dart';
 
 class JobsBottomScreenList extends StatelessWidget {
-  final AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> jobsData;
+  final AsyncSnapshot<QuerySnapshot> jobsData;
   const JobsBottomScreenList(this.jobsData);
 
   @override
@@ -42,10 +42,8 @@ class JobsBottomScreenList extends StatelessWidget {
                       Text(
                         job['jobName'],
                         textAlign: TextAlign.center,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyText1!
-                            .copyWith(fontFamily: 'OtomanopeeOne', fontWeight: FontWeight.bold, fontSize: width * 0.015),
+                        style: Theme.of(context).textTheme.bodyText1!.copyWith(
+                            fontFamily: 'OtomanopeeOne', fontWeight: FontWeight.bold, fontSize: width * 0.015),
                       ),
                       CircleAvatar(
                         backgroundColor: Colors.red,
@@ -61,10 +59,10 @@ class JobsBottomScreenList extends StatelessWidget {
                       ),
                     ],
                   ),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => JobDetailsScreen(job))),
+                  onTap: () =>
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => JobDetailsScreen(job))),
                 ),
               );
-
             },
           ),
         ),

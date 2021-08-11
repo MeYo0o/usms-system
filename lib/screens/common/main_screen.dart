@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:usms/screens/auth_screen.dart';
+import 'package:usms/screens/common/auth_screen.dart';
 import 'package:usms/widgets/widget_exporter.dart';
 
 class MainScreen extends StatelessWidget {
@@ -29,8 +29,11 @@ class MainScreen extends StatelessWidget {
           GridItem(
               title: 'HR',
               imageTitle: 'Hr.jpg',
-              func: () => Navigator.of(context).pushNamed(AuthScreen.id)),
-          GridItem(title: 'Education', imageTitle: 'Education.jpg', func: () {}),
+              func: () => Navigator.of(context).pushNamed(AuthScreen.id, arguments: 'hr_users')),
+          GridItem(
+              title: 'Education',
+              imageTitle: 'Education.jpg',
+              func: () => Navigator.of(context).pushNamed(AuthScreen.id, arguments: 'interviewers')),
           GridItem(title: 'Events', imageTitle: 'Events.jpg', func: () {}),
           GridItem(title: 'IT', imageTitle: 'IT.jpg', func: () {}),
           GridItem(title: 'Security', imageTitle: 'Security.jpg', func: () {}),
