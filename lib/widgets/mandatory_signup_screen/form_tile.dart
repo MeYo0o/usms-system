@@ -5,11 +5,13 @@ class FormTile extends StatelessWidget {
   final TextEditingController? controller;
   final TextInputType inputType;
   final TextInputAction action;
+  final int? maxLines;
   FormTile({
     @required this.fieldName,
     @required this.controller,
     this.inputType = TextInputType.name,
     this.action = TextInputAction.next,
+    this.maxLines,
   });
 
   @override
@@ -22,7 +24,7 @@ class FormTile extends StatelessWidget {
         keyboardType: inputType,
         controller: controller,
         autocorrect: false,
-        maxLines: null,
+        maxLines: maxLines,
         decoration: InputDecoration(
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(7),

@@ -50,11 +50,12 @@ class DBM with ChangeNotifier {
   Future<void> getUserData() async {
     //get current user
     User? user = FirebaseAuth.instance.currentUser;
-    await firestore.collection('$userType').doc(user!.uid).get().then(
+    //TODO Clear this static collection and make it dynamic based on where the hr/interviewer is going
+    final String collectionId = kIsWeb ? 'hr_users' : 'interviewers';
+    await firestore.collection(collectionId).doc(user!.uid).get().then(
       (DocumentSnapshot snapshot) {
         userData = snapshot.data();
-        //recently added but not tested
-        // notifyListeners();
+        // print(userData);
       },
     );
     return userData;
@@ -212,12 +213,172 @@ class DBM with ChangeNotifier {
     }
   }
 
-  ///////////////////////////////////////////////  interviewers related  //////////////////////////////////////
+///////////////////////////////////////////////  interviewers related  //////////////////////////////////////
+  Future<void> interviewNotify(
+    BuildContext context,
+    GlobalKey<FormState> formKey,
+    String candidateId,
+    int dialogIndex, {
+    DateTime? dayTime,
+    String? hourTime,
+    String? noteToCandidate,
+    String? rejectionMessage,
+    DateTime? timeToApply,
+  }) async {
+    bool isValid = formKey.currentState!.validate();
+    if (isValid) {
+      try {
+        //get Job Data
+        var jobData;
+        await firestore.collection('jobs').doc(userData['appliedJob']).get().then(
+          (DocumentSnapshot snapshot) {
+            jobData = snapshot.data();
+            // print(userData);
+          },
+        );
+        //in case of cancelling the interview
+        //deleting the interview process from the Interviewer
+        if (dialogIndex == 0) {
+          if (timeToApply == null || rejectionMessage == null) {
+            hideNShowSnackBar(context, 'Please Fill all required fields!');
+            return;
+          }
+
+          await firestore.collection('users').doc(candidateId).update({
+            //Notify the HR
+            'interview': 'rejected',
+            //Notify the Candidate of cancelling
+            'rejection': {
+              'jobName': jobData['jobName'],
+              'JobPosition': jobData['jobPosition'],
+              'interviewerId': userData['uid'],
+              'rejectionMessage': rejectionMessage,
+            },
+            'timeToApply': timeToApply.toIso8601String(),
+          });
+
+          //test values
+          // print('rejectionMessage : ' + rejectionMessage);
+          // print('timeToApply : ' + timeToApply.toIso8601String());
+        }
+        //in case of accepting the interview (Scheduling)
+        else if (dialogIndex == 1) {
+          if (dayTime == null || hourTime == null || noteToCandidate == null) {
+            hideNShowSnackBar(context, 'Please Fill all required fields!');
+            return;
+          }
+
+          //update candidate db while notifying HR & Candidate
+          await firestore.collection('users').doc(candidateId).update({
+            //Notify the HR
+            'interview': 'accepted',
+            //Notify the Candidate of cancelling
+            'scheduledInterview': {
+              'jobName': jobData['jobName'],
+              'JobPosition': jobData['jobPosition'],
+              'interviewerId': userData['uid'],
+              'dayTime': dayTime.toIso8601String(),
+              'hourTime': hourTime,
+              'noteToCandidate': noteToCandidate,
+            },
+          });
+          //test values
+          // print('interviewerId : ' + interviewerId!);
+          // print('dayTime : ' + dayTime!.toIso8601String());
+          // print('hourTime : ' + hourTime!);
+          // print('noteToCandidate : ' + noteToCandidate!);
+        }
+
+        hideNShowSnackBar(context, 'Operation is done successfully!');
+        //exit both dialog and user screen
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+      } catch (err) {
+        hideNShowSnackBar(context, 'There was an error while doing this operation!');
+      }
+    } else {
+      hideNShowSnackBar(context, 'Please Fill all required fields!');
+      return;
+    }
+  }
+
+///////////////////////////////////////////////  HR related  //////////////////////////////////////
+  Future<void> updateUserData(String uid, String hrValue, BuildContext context) async {
+    String? userVerification;
+    if (hrValue == 'verify') {
+      userVerification = 'verified';
+    } else if (hrValue == 'employee') {
+      userVerification = 'employed';
+    } else if (hrValue == 'delete') {
+      userVerification = 'deleted';
+    } else if (hrValue == 'unverify') {
+      userVerification = 'unverified';
+    }
+    await firestore.collection('users').doc(uid).update({'verified': userVerification}).then((_) => hideNShowSnackBar(
+          context,
+          'Operation is done '
+          'successfully',
+        ));
+  }
+
+  Future<void> submitJob(BuildContext context, GlobalKey<FormState> formKey, String jobName, String jobPosition,
+      String jobResponsibilities) async {
+    final isValid = formKey.currentState!.validate();
+    if (!isValid) {
+      hideNShowSnackBar(context, 'Please Complete All Required Fields.');
+      return;
+    }
+    if (isValid) {
+      formKey.currentState!.save();
+      try {
+        final DocumentReference newJob = FirebaseFirestore.instance.collection('jobs').doc();
+        final String newJobId = newJob.id;
+        await FirebaseFirestore.instance.collection('jobs').doc(newJobId).set({
+          'jobName': jobName,
+          'jobPosition': jobPosition,
+          'jobResponsibilities': jobResponsibilities,
+          'uid': newJobId,
+          'requests': [],
+        });
+        hideNShowSnackBar(context, 'Job is submitted Successfully!');
+      } catch (err) {
+        print(err);
+        hideNShowSnackBar(context, 'There was an error uploading data.');
+        return;
+      }
+    }
+  }
+
+  Future<void> deleteJob(BuildContext context, String jobId, List usersAppliedIDs, List interviewersIDs) async {
+    //make sure there is no empty strings in the interviewers or interviewees List
+    interviewersIDs.removeWhere((e) => e == '');
+    usersAppliedIDs.removeWhere((e) => e == '');
+    //reset interviewers data
+    interviewersIDs.forEach((interviewerID) async {
+      await firestore.collection('interviewers').doc(interviewerID).update({
+        'interviews': [],
+      });
+    });
+
+    //reset users data
+    usersAppliedIDs.forEach((userId) async {
+      await firestore.collection('users').doc(userId).update({
+        'appliedJob': '',
+        'interview': '',
+      });
+    });
+    await FirebaseFirestore.instance.collection('jobs').doc(jobId).delete();
+    hideNShowSnackBar(context, 'Job is deleted successfully.');
+  }
+
+  /////////////////////////////////// HR To Interviewers Related /////////////////////////////
   List<dynamic> interList = [];
   Future<void> getInterviewers() async {
     await firestore.collection('interviewers').get().then((QuerySnapshot interviewers) {
       interviewers.docs.forEach((interviewer) {
-        interList.add(interviewer.data());
+        if (!interList.contains(interviewer.data)) {
+          interList.add(interviewer.data());
+        }
       });
       // print(interList);
     });
@@ -295,75 +456,6 @@ class DBM with ChangeNotifier {
     } catch (err) {
       hideNShowSnackBar(context, 'There was an error while doing the operation.');
     }
-  }
-
-///////////////////////////////////////////////  HR related  //////////////////////////////////////
-  Future<void> updateUserData(String uid, String hrValue, BuildContext context) async {
-    String? userVerification;
-    if (hrValue == 'verify') {
-      userVerification = 'verified';
-    } else if (hrValue == 'employee') {
-      userVerification = 'employed';
-    } else if (hrValue == 'delete') {
-      userVerification = 'deleted';
-    } else if (hrValue == 'unverify') {
-      userVerification = 'unverified';
-    }
-    await firestore.collection('users').doc(uid).update({'verified': userVerification}).then((_) => hideNShowSnackBar(
-          context,
-          'Operation is done '
-          'successfully',
-        ));
-  }
-
-  Future<void> submitJob(BuildContext context, GlobalKey<FormState> formKey, String jobName, String jobPosition,
-      String jobResponsibilities) async {
-    final isValid = formKey.currentState!.validate();
-    if (!isValid) {
-      hideNShowSnackBar(context, 'Please Complete All Required Fields.');
-      return;
-    }
-    if (isValid) {
-      formKey.currentState!.save();
-      try {
-        final DocumentReference newJob = FirebaseFirestore.instance.collection('jobs').doc();
-        final String newJobId = newJob.id;
-        await FirebaseFirestore.instance.collection('jobs').doc(newJobId).set({
-          'jobName': jobName,
-          'jobPosition': jobPosition,
-          'jobResponsibilities': jobResponsibilities,
-          'uid': newJobId,
-          'requests': [],
-        });
-        hideNShowSnackBar(context, 'Job is submitted Successfully!');
-      } catch (err) {
-        print(err);
-        hideNShowSnackBar(context, 'There was an error uploading data.');
-        return;
-      }
-    }
-  }
-
-  Future<void> deleteJob(BuildContext context, String jobId, List usersAppliedIDs, List interviewersIDs) async {
-    //make sure there is no empty strings in the interviewers or interviewees List
-    interviewersIDs.removeWhere((e) => e == '');
-    usersAppliedIDs.removeWhere((e) => e == '');
-    //reset interviewers data
-    interviewersIDs.forEach((interviewerID) async {
-      await firestore.collection('interviewers').doc(interviewerID).update({
-        'interviews': [],
-      });
-    });
-
-    //reset users data
-    usersAppliedIDs.forEach((userId) async {
-      await firestore.collection('users').doc(userId).update({
-        'appliedJob': '',
-        'interview': '',
-      });
-    });
-    await FirebaseFirestore.instance.collection('jobs').doc(jobId).delete();
-    hideNShowSnackBar(context, 'Job is deleted successfully.');
   }
 
   //end of class

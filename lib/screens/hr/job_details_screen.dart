@@ -187,14 +187,29 @@ class JobDetailsScreen extends StatelessWidget {
                               title: Text(singleUserData.get('fullName')),
                               subtitle:
                                   Text(singleUserData.get('degreeType') + ' - ' + singleUserData.get('speciality')),
-                              trailing: singleUserData.get('interview') != ''
-                                  ? Text('Interview In Process',
-                                      style: Theme.of(context).textTheme.bodyText1!.copyWith(color: Colors.red))
-                                  : Icon(Icons.arrow_forward_ios),
+                              //extensive coding but i hope it works
+                              trailing: (singleUserData.get('interview') != '' &&
+                                      singleUserData.get('interview') != 'rejected' &&
+                                      singleUserData.get('interview') != 'accepted')
+                                  ? Text('Interviewer Noticed',
+                                      style: Theme.of(context).textTheme.bodyText1!.copyWith(color: Colors.black))
+                                  : singleUserData.get('interview') == 'rejected'
+                                      ? Text('Candidate Rejected',
+                                          style: Theme.of(context).textTheme.bodyText1!.copyWith(color: Colors.red))
+                                      : singleUserData.get('interview') != 'accepted'
+                                          ? Text('Interview in Process',
+                                              style:
+                                                  Theme.of(context).textTheme.bodyText1!.copyWith(color: Colors.green))
+                                          : Icon(Icons.arrow_forward_ios),
                               contentPadding: const EdgeInsets.all(3),
-                              onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) =>
-                                      UserDetailsScreen(singleUserData, jobData: jobData, isJob: true))),
+                              onTap: singleUserData.get('interview') == ''
+                                  ? () => Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              UserDetailsScreen(singleUserData, jobData: jobData, isJob: true),
+                                        ),
+                                      )
+                                  : null,
                             ),
                           );
                         },

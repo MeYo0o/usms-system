@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:usms/providers/auth_provider.dart';
 import 'package:usms/providers/dbm_provider.dart';
+import 'package:usms/screens/education/interviewers/interviews_screen.dart';
 import 'package:usms/widgets/common_widgets/profile_tile.dart';
 
 class InterviewerProfileScreen extends StatelessWidget {
@@ -81,6 +82,7 @@ class InterviewerProfileScreen extends StatelessWidget {
               leftText: 'Interviews',
               rightText: dbm.userData['interviews'].length.toString(),
               rightColor: Colors.blueGrey,
+              tileFunc: () => Navigator.of(context).pushNamed(InterviewsScreen.id),
             ),
             ProfileTile(
               leftText: 'Employees',

@@ -38,7 +38,12 @@ class _DatabaseCheckState extends State<DatabaseCheck> {
       child: Scaffold(
         body: StreamBuilder(
           // stream: dbm.firestore.collection('${dbm.userType}').doc(user!.uid).snapshots(),
-          stream: dbm.firestore.collection('hr_users').doc(user!.uid).snapshots(),
+          // stream: dbm.firestore.collection('hr_users').doc(user!.uid).snapshots(),
+          //TODO Clear this static collection and make it dynamic based on where the hr/interviewer is going
+
+          stream: kIsWeb
+              ? dbm.firestore.collection('hr_users').doc(user!.uid).snapshots()
+              : dbm.firestore.collection('interviewers').doc(user!.uid).snapshots(),
           builder: (context, AsyncSnapshot? snapshot) {
             if (snapshot!.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());

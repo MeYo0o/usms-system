@@ -2,7 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-import 'package:usms/screens/hr/hr_dashboard_screen.dart';
+import 'package:usms/screens/education/interviewers/interviewer_profile_screen.dart';
+import 'package:usms/screens/education/interviewers/interviews_screen.dart';
 import 'package:usms/widgets/widget_exporter.dart';
 import '../providers/auth_provider.dart';
 import '../providers/dbm_provider.dart';
@@ -17,7 +18,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  final bool _testMode = true;
+  final bool _testMode = false;
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -34,7 +35,7 @@ class MyApp extends StatelessWidget {
           // brightness: Brightness.dark,
         ),
         home: _testMode
-            ? DatabaseCheck()
+            ? InterviewerProfileScreen()
             : StreamBuilder(
                 stream: FirebaseAuth.instance.authStateChanges(),
                 builder: (context, snapshot) {
@@ -54,6 +55,7 @@ class MyApp extends StatelessWidget {
           MainScreen.id: (context) => MainScreen(),
           AuthScreen.id: (context) => AuthScreen(),
           DatabaseCheck.id: (context) => DatabaseCheck(),
+          InterviewsScreen.id: (context) => InterviewsScreen(),
         },
       ),
     );

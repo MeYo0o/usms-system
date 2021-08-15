@@ -37,6 +37,7 @@ class LeftAppDrawer extends StatelessWidget {
                 Text(
                   dbm.userData!['fullName'],
                   style: Theme.of(context).textTheme.bodyText1!.copyWith(fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
                 ),
                 SizedBox(height: height * 0.01),
                 Text('HR'),
