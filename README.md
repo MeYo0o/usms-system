@@ -1,6 +1,6 @@
-# usms_hr
+# USMS System
 
-HR version of USMS
+System version of USMS
 
 ## Getting Started
 
