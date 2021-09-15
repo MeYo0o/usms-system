@@ -25,20 +25,27 @@ class DBM with ChangeNotifier {
 
   //Current Login/Signup Type State --> ex : hr , interviewer , admin , owner , ...etc
   String? userType;
+  void changeUserType(String newValue) {
+    userType = newValue;
+    // notifyListeners();
+  }
+
+  ////////////////////// OLD : Before dynamic Login implementation /////////////////////////////
   //setter
-  Future<void> setUserType(String keyValue) async {
-    final SharedPreferences sp = await SharedPreferences.getInstance();
-    await sp.setString('userData', keyValue);
-    userType = keyValue;
-  }
+  // Future<void> setUserType(String keyValue) async {
+  //   final SharedPreferences sp = await SharedPreferences.getInstance();
+  //   await sp.setString('userData', keyValue);
+  //   userType = keyValue;
+  // }
+  //
+  // //getter
+  // Future<void> getUserType() async {
+  //   final SharedPreferences sp = await SharedPreferences.getInstance();
+  //   userType = sp.getString('userData');
+  // }
+  /////////////////////////////////////////////////////////////////////////////////
 
-  //getter
-  Future<void> getUserType() async {
-    final SharedPreferences sp = await SharedPreferences.getInstance();
-    userType = sp.getString('userData');
-  }
-
-  //Navigator Boolean -- Make sure you set it to 0 on deploy
+  //Navigator Boolean for opening the HR screen on a certain tab (left drawer) -- Make sure you set it to 0 on deploy
   int navigator = 0;
 
   void changeNavigatorValue(int newValue) {
@@ -50,9 +57,7 @@ class DBM with ChangeNotifier {
   Future<void> getUserData() async {
     //get current user
     User? user = FirebaseAuth.instance.currentUser;
-    //TODO Clear this static collection and make it dynamic based on where the hr/interviewer is going
-    final String collectionId = kIsWeb ? 'hr_users' : 'interviewers';
-    await firestore.collection(collectionId).doc(user!.uid).get().then(
+    await firestore.collection(userType!).doc(user!.uid).get().then(
       (DocumentSnapshot snapshot) {
         userData = snapshot.data();
         // print(userData);
@@ -181,6 +186,7 @@ class DBM with ChangeNotifier {
 
         //submit to firestore
         await firestore.collection('$userType').doc(user.uid).set({
+          //Common Entries (For All)
           'profileImage': url,
           'fullName': fullName,
           'mobileNumber': mobileNumber,
@@ -193,6 +199,8 @@ class DBM with ChangeNotifier {
           'speciality': speciality,
           'graduationYear': graduationYear,
           'uid': user.uid,
+          'userType': userType,
+          //interviewers specific entries
           if (userType == 'interviewers') 'interviews': [],
           if (userType == 'interviewers') 'employees': [],
         }).then((value) async {
@@ -217,7 +225,7 @@ class DBM with ChangeNotifier {
   Future<void> interviewNotify(
     BuildContext context,
     GlobalKey<FormState> formKey,
-    String candidateId,
+    candidateData,
     int dialogIndex, {
     DateTime? dayTime,
     String? hourTime,
@@ -230,10 +238,10 @@ class DBM with ChangeNotifier {
       try {
         //get Job Data
         var jobData;
-        await firestore.collection('jobs').doc(userData['appliedJob']).get().then(
+        await firestore.collection('jobs').doc(candidateData['appliedJob']).get().then(
           (DocumentSnapshot snapshot) {
             jobData = snapshot.data();
-            // print(userData);
+            // print(jobData);
           },
         );
         //in case of cancelling the interview
@@ -244,13 +252,13 @@ class DBM with ChangeNotifier {
             return;
           }
 
-          await firestore.collection('users').doc(candidateId).update({
+          await firestore.collection('users').doc(candidateData['uid']).update({
             //Notify the HR
             'interview': 'rejected',
             //Notify the Candidate of cancelling
             'rejection': {
               'jobName': jobData['jobName'],
-              'JobPosition': jobData['jobPosition'],
+              'jobPosition': jobData['jobPosition'],
               'interviewerId': userData['uid'],
               'rejectionMessage': rejectionMessage,
             },
@@ -267,20 +275,28 @@ class DBM with ChangeNotifier {
             hideNShowSnackBar(context, 'Please Fill all required fields!');
             return;
           }
+          //test values
+          // print(jobData['jobName']);
+          // print(jobData['jobPosition']);
+          // print(userData['uid']);
+          // print(dayTime.toIso8601String());
+          // print(hourTime);
+          // print(noteToCandidate);
 
           //update candidate db while notifying HR & Candidate
-          await firestore.collection('users').doc(candidateId).update({
+          await firestore.collection('users').doc(candidateData['uid']).update({
             //Notify the HR
             'interview': 'accepted',
             //Notify the Candidate of cancelling
             'scheduledInterview': {
               'jobName': jobData['jobName'],
-              'JobPosition': jobData['jobPosition'],
+              'jobPosition': jobData['jobPosition'],
               'interviewerId': userData['uid'],
               'dayTime': dayTime.toIso8601String(),
               'hourTime': hourTime,
               'noteToCandidate': noteToCandidate,
             },
+            'timeToApply': timeToApply!.toIso8601String(),
           });
           //test values
           // print('interviewerId : ' + interviewerId!);

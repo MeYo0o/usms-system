@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:usms/widgets/common_widgets/notice_screen.dart';
+import './notice_screen.dart';
 
 final Widget noticeError = NoticeScreen(
   headText: 'An Error Occurred!',
@@ -18,4 +18,12 @@ final Widget noticeDataCompleted = NoticeScreen(
   bodyText: 'You are done here , please go back to your web app and proceed',
   iconData: Icons.check_circle_outline,
   iconColor: Colors.green,
+);
+
+final Widget noticeNotInDepartment = NoticeScreen(
+  headText: 'You are not in this department',
+  bodyText: 'Go Back and Login to your department',
+  iconData: Icons.error_outline,
+  iconColor: Colors.red,
+  // signOut: false,
 );

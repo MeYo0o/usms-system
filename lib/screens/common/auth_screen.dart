@@ -1,11 +1,13 @@
-import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
+import 'package:usms/widgets/auth_screen/auth_screen_body.dart';
 import '../../providers/dbm_provider.dart';
 import '../../widgets/widget_exporter.dart';
 import './checking/db_check.dart';
+import 'main_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   static const String id = 'auth_screen';
@@ -15,166 +17,54 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  final _formKey = GlobalKey<FormState>();
-  bool _isSignup = false;
-  bool _isLoading = false;
-
-  final bool _showPassword = true;
-  final TextEditingController _emailCont = TextEditingController();
-  final TextEditingController _passwordCont = TextEditingController();
-  final TextEditingController _confirmPasswordCont = TextEditingController();
-
-  void _changeIsLoadingState() {
-    setState(() {
-      _isLoading = !_isLoading;
-    });
-  }
-
-  void _submitData(Auth auth, DBM dbm, String userType) async {
-    FocusScope.of(context).unfocus();
-    //to enable loading
-    _changeIsLoadingState();
-    final bool _isValid = _formKey.currentState!.validate();
-    if (!_isValid) {
-      dbm.hideNShowSnackBar(context, 'Please Complete All The Fields');
-      //to disable loading
-      _changeIsLoadingState();
-    }
-    if (_isValid) {
-      try {
-        if (_isSignup) {
-          await auth.emailSignUp(_emailCont.text.trim(), _passwordCont.text);
-          //save current userType as it's successfully authenticated
-          await dbm.setUserType(userType);
-          //to disable loading
-          _changeIsLoadingState();
-          //Move to HR Data Check for whether the result should be MandatoryDataScreen or HR Profile
-          Navigator.of(context).pushReplacementNamed(DatabaseCheck.id);
-        } else {
-          await auth.emailSignIn(_emailCont.text.trim(), _passwordCont.text);
-          //save current userType as it's successfully authenticated
-          await dbm.setUserType(userType);
-          //to disable loading
-          _changeIsLoadingState();
-          //Move to HR Data Check for whether the result should be MandatoryDataScreen or HR Profile
-          Navigator.of(context).pushReplacementNamed(DatabaseCheck.id);
-        }
-      } catch (err) {
-        //to disable loading
-        _changeIsLoadingState();
-        dbm.hideNShowSnackBar(context, '${err.toString()}');
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _emailCont.dispose();
-    _passwordCont.dispose();
-    _confirmPasswordCont.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<Auth>(context, listen: false);
     final dbm = Provider.of<DBM>(context, listen: false);
-    double height = MediaQuery.of(context).size.height;
-    double width = MediaQuery.of(context).size.width;
+
+    //userType dynamic login
     final userType = ModalRoute.of(context)!.settings.arguments as String;
+    dbm.changeUserType(userType);
+    // print(dbm.userType);
     return Scaffold(
-      appBar: kIsWeb
-          ? null
-          : AppBar(
-              title: Text('Authentication Screen'),
-              centerTitle: true,
-            ),
-      body: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Image.asset(
-                'assets/images/logo-nobg.png',
-                fit: BoxFit.cover,
-                height: kIsWeb ? height * 0.3 : height * 0.2,
-              ),
-              Container(
-                padding: const EdgeInsets.all(20),
-                height: height * 0.20,
-                width: width * 0.8,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    AnimatedTextKit(
-                      animatedTexts: [
-                        TypewriterAnimatedText(
-                          'Ultimate School Management System',
-                          // speed: Duration(milliseconds: 100),
-                          // cursor: '',
-                          textStyle: TextStyle(
-                            fontSize: kIsWeb ? width * 0.03 : width * 0.05,
-                            fontFamily: 'OtomanopeeOne',
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              AuthFormTile(tileName: 'Username', cont: _emailCont, obscureVar: false),
-              AuthFormTile(tileName: 'Password', cont: _passwordCont, obscureVar: _showPassword),
-              if (_isSignup)
-                AuthFormTile(
-                  tileName: 'Confirm Password',
-                  cont: _confirmPasswordCont,
-                  pwCheckCont: _passwordCont,
-                  obscureVar: _showPassword,
-                ),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    _isSignup = !_isSignup;
-                  });
-                },
-                child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  child: Text(
-                    _isSignup
-                        ? 'Already have an account? .. Click Here to Sign In'
-                        : 'Don\'t have an account? .. Click Here to Sign Up',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyText1!.copyWith(
-                        color: Theme.of(context).accentColor, fontSize: kIsWeb ? width * 0.012 : width * 0.035),
-                  ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: width * 0.2, vertical: height * 0.03),
-                child: ElevatedButton(
-                  child: _isLoading
-                      ? CircularProgressIndicator(
-                          color: Theme.of(context).accentColor,
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            _isSignup ? 'Sign Up' : 'Sign In',
-                            style: Theme.of(context).textTheme.bodyText1!.copyWith(
-                                color: Theme.of(context).accentColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: kIsWeb ? width * 0.01 : width * 0.05),
-                          ),
-                        ),
-                  onPressed: () => _submitData(auth, dbm, userType),
-                ),
-              ),
-            ],
-          ),
-        ),
+      body: StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return noticeError;
+          } else if (!snapshot.hasData) {
+            return AuthScreenBody();
+          } else if (snapshot.hasData) {
+            //user is authenticated
+            User? user = FirebaseAuth.instance.currentUser;
+            //if the user is in hr_users ==> Navigate to HR stream data
+            //if the user is in interviewers ==> Navigate to interviewers stream data
+            return FutureBuilder(
+              future: dbm.firestore.collection(userType).doc(user!.uid).get(),
+              builder: (context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
+                if (userSnapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                if (userSnapshot.hasError) {
+                  return noticeError;
+                }
+                if (!userSnapshot.data!.exists) {
+                  return noticeNotInDepartment;
+                  //Trials
+                  // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainScreen()));
+                  // return MainScreen();
+                  // dbm.hideNShowSnackBar(context, 'You don\'t belong to this department');
+                }
+                return DatabaseCheck();
+              },
+            );
+
+            //OLD : Before Dynamic Login implementation.
+            // return DatabaseCheck();
+          }
+          return AuthScreenBody();
+        },
       ),
     );
   }

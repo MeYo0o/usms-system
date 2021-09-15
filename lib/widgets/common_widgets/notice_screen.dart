@@ -7,6 +7,7 @@ class NoticeScreen extends StatelessWidget {
   final IconData? iconData;
   final Color? iconColor;
   final String? headText, bodyText;
+
   NoticeScreen({
     @required this.headText,
     @required this.bodyText,
@@ -51,8 +52,8 @@ class NoticeScreen extends StatelessWidget {
                 ElevatedButton(
                   child: Text('Go Back'),
                   onPressed: () async {
-                    Navigator.of(context).pop();
                     await auth.emailSignOut();
+                    Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
                     textStyle: TextStyle(fontSize: kIsWeb ? width * 0.015 : width * 0.05, fontWeight: FontWeight.bold),

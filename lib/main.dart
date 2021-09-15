@@ -14,10 +14,10 @@ import 'screens/common/main_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MyApp());
+  runApp(USMS());
 }
 
-class MyApp extends StatelessWidget {
+class USMS extends StatelessWidget {
   final bool _testMode = false;
   @override
   Widget build(BuildContext context) {
@@ -34,23 +34,23 @@ class MyApp extends StatelessWidget {
           accentColor: Colors.amber,
           // brightness: Brightness.dark,
         ),
-        home: _testMode
-            ? InterviewerProfileScreen()
-            : StreamBuilder(
-                stream: FirebaseAuth.instance.authStateChanges(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return noticeError;
-                  } else if (!snapshot.hasData) {
-                    return MainScreen();
-                  } else if (snapshot.hasData) {
-                    return DatabaseCheck();
-                  }
-                  return MainScreen();
-                },
-              ),
+        home: _testMode ? InterviewerProfileScreen() : MainScreen(),
+        //OLD : before dynamic login implementation.
+        // StreamBuilder(
+        //         stream: FirebaseAuth.instance.authStateChanges(),
+        //         builder: (context, snapshot) {
+        //           if (snapshot.connectionState == ConnectionState.waiting) {
+        //             return Center(child: CircularProgressIndicator());
+        //           } else if (snapshot.hasError) {
+        //             return noticeError;
+        //           } else if (!snapshot.hasData) {
+        //             return MainScreen();
+        //           } else if (snapshot.hasData) {
+        //             return DatabaseCheck();
+        //           }
+        //           return MainScreen();
+        //         },
+        //       ),
         routes: {
           MainScreen.id: (context) => MainScreen(),
           AuthScreen.id: (context) => AuthScreen(),

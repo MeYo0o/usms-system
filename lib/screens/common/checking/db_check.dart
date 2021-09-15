@@ -21,8 +21,11 @@ class _DatabaseCheckState extends State<DatabaseCheck> {
     super.initState();
     Future.delayed(Duration.zero).then((_) async {
       final dbm = Provider.of<DBM>(context, listen: false);
-      await dbm.getUserType();
-      await dbm.getInterviewers();
+      //OLD : before dynamic login implementation.
+      // await dbm.getUserType();
+      if (dbm.userType == 'hr_users') {
+        await dbm.getInterviewers();
+      }
     });
   }
 
@@ -33,17 +36,10 @@ class _DatabaseCheckState extends State<DatabaseCheck> {
     //summon userType -- uncomment for final release
     // dbm.getUserType();
     // print('you are looking for : ${dbm.userType}');
-
     return SafeArea(
       child: Scaffold(
         body: StreamBuilder(
-          // stream: dbm.firestore.collection('${dbm.userType}').doc(user!.uid).snapshots(),
-          // stream: dbm.firestore.collection('hr_users').doc(user!.uid).snapshots(),
-          //TODO Clear this static collection and make it dynamic based on where the hr/interviewer is going
-
-          stream: kIsWeb
-              ? dbm.firestore.collection('hr_users').doc(user!.uid).snapshots()
-              : dbm.firestore.collection('interviewers').doc(user!.uid).snapshots(),
+          stream: dbm.firestore.collection(dbm.userType!).doc(user!.uid).snapshots(),
           builder: (context, AsyncSnapshot? snapshot) {
             if (snapshot!.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
@@ -59,7 +55,6 @@ class _DatabaseCheckState extends State<DatabaseCheck> {
                   return MandatorySignUpScreen(isEditMode: false);
                 }
               }
-              print('here1');
               return MandatorySignUpScreen(isEditMode: false);
             }
             if (snapshot.hasData) {
@@ -71,14 +66,12 @@ class _DatabaseCheckState extends State<DatabaseCheck> {
                     return MandatorySignUpScreen(isEditMode: false);
                   }
                 }
-                print('here2');
                 return MandatorySignUpScreen(isEditMode: false);
               }
               if (snapshot.data.exists) {
                 if (dbm.userType == 'hr_users') {
                   return kIsWeb ? LoadUserData() : noticeDataCompleted;
                 }
-                print('here3');
                 //return according screen
                 return LoadUserData();
               }

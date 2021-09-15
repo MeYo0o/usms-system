@@ -65,16 +65,47 @@ class UserInterviewDetailsScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             //in case user exists (rejected or accepted) , no need to reject nor schedule an interview
-                            ElevatedButton(
-                                onPressed: userExists == true ? null : () => _showDialog(context, 0),
-                                child: Text('Reject Candidate', style: TextStyle(fontWeight: FontWeight.bold))),
-                            SizedBox(width: width * 0.1),
-                            ElevatedButton(
-                                onPressed: userExists == true ? null : () => _showDialog(context, 1),
-                                child: Text(
-                                    'Schedule '
-                                    'Interview',
-                                    style: TextStyle(fontWeight: FontWeight.bold))),
+                            if (userData['scheduledInterview']['interviewerId'] == '' &&
+                                userData['rejection']['interviewerId'] == '')
+                              ElevatedButton(
+                                  onPressed: () => _showDialog(context, 0),
+                                  child: Text('Reject Candidate', style: TextStyle(fontWeight: FontWeight.bold))),
+                            if (userData['scheduledInterview']['interviewerId'] == '' &&
+                                userData['rejection']['interviewerId'] == '')
+                              SizedBox(width: width * 0.1),
+                            if (userData['scheduledInterview']['interviewerId'] == '' &&
+                                userData['rejection']['interviewerId'] == '')
+                              ElevatedButton(
+                                  onPressed: () => _showDialog(context, 1),
+                                  child: Text(
+                                      'Schedule '
+                                      'Interview',
+                                      style: TextStyle(fontWeight: FontWeight.bold))),
+                            //show the Employ Button in case this candidate has interview in process and the date
+                            // time for that interview is went by (meaning the interview is whether today or any day
+                            // after)
+                            if (userData['scheduledInterview']['interviewerId'] != '')
+                              if (DateTime.now()
+                                      .difference(DateTime.parse(userData['scheduledInterview']['dayTime']))
+                                      .inDays >=
+                                  0)
+                                ElevatedButton(
+                                    onPressed: () => _showDialog(context, 0),
+                                    child: Text('Reject Candidate', style: TextStyle(fontWeight: FontWeight.bold))),
+                            if (userData['scheduledInterview']['interviewerId'] != '')
+                              if (DateTime.now()
+                                      .difference(DateTime.parse(userData['scheduledInterview']['dayTime']))
+                                      .inDays >=
+                                  0)
+                                SizedBox(width: width * 0.03),
+                            if (userData['scheduledInterview']['interviewerId'] != '')
+                              if (DateTime.now()
+                                      .difference(DateTime.parse(userData['scheduledInterview']['dayTime']))
+                                      .inDays >=
+                                  0)
+                                ElevatedButton(
+                                    onPressed: () {},
+                                    child: Text('Employ Candidate', style: TextStyle(fontWeight: FontWeight.bold))),
                           ],
                         ),
                       ],
@@ -295,7 +326,7 @@ class UserInterviewDetailsScreen extends StatelessWidget {
                         await dbm.interviewNotify(
                           context,
                           formKey,
-                          userData['uid'],
+                          userData,
                           0,
                           rejectionMessage: messageCont.text,
                           timeToApply: DateTime.now().add(Duration(days: 7)),
@@ -307,11 +338,12 @@ class UserInterviewDetailsScreen extends StatelessWidget {
                         await dbm.interviewNotify(
                           context,
                           formKey,
-                          userData['uid'],
+                          userData,
                           1,
                           dayTime: dayTime,
                           hourTime: hourTime.text,
                           noteToCandidate: messageCont.text,
+                          timeToApply: DateTime.now().add(Duration(days: 7)),
                         );
                       },
                 child: Text('Submit', style: TextStyle(fontWeight: FontWeight.bold)),

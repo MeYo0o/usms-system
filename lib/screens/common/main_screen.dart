@@ -8,6 +8,7 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Ultimate School Management System'),
@@ -17,7 +18,7 @@ class MainScreen extends StatelessWidget {
       body: GridView.count(
         crossAxisCount: width > 700
             ? 4
-            : width > 500
+            : width > 600
                 ? 3
                 : 2,
         shrinkWrap: true,

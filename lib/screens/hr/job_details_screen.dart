@@ -196,7 +196,8 @@ class JobDetailsScreen extends StatelessWidget {
                                   : singleUserData.get('interview') == 'rejected'
                                       ? Text('Candidate Rejected',
                                           style: Theme.of(context).textTheme.bodyText1!.copyWith(color: Colors.red))
-                                      : singleUserData.get('interview') != 'accepted'
+                                      : (singleUserData.get('interview') != 'accepted' &&
+                                              singleUserData.get('interview') != '')
                                           ? Text('Interview in Process',
                                               style:
                                                   Theme.of(context).textTheme.bodyText1!.copyWith(color: Colors.green))
